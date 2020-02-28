@@ -1,7 +1,7 @@
 package com.andersenlab.adamovichjr.dao.impl;
 
-import com.andersenlab.adamovichjr.dao.DataSource;
 import com.andersenlab.adamovichjr.dao.ICarDao;
+import com.andersenlab.adamovichjr.dao.util.DataSource;
 import com.andersenlab.adamovichjr.model.Car;
 
 import java.sql.*;
@@ -87,6 +87,7 @@ public class CarDao implements ICarDao {
              final PreparedStatement statement = connection.prepareStatement
                      ("DELETE FROM car WHERE id = ?")) {
             statement.setInt(1, id);
+            statement.executeUpdate();
             return car;
         } catch (SQLException e) {
             throw new RuntimeException("Fail to delete car from data base", e);
