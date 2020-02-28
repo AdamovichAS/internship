@@ -1,8 +1,9 @@
-package com.andersenlab.adamovichjr.dao;
+package com.andersenlab.adamovichjr.dao.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class DataSource {
@@ -23,7 +24,7 @@ public class DataSource {
     }
 
     public Connection getConnection() {
-        ResourceBundle resource = ResourceBundle.getBundle("database");
+        ResourceBundle resource = ResourceBundle.getBundle("db");
         String url = resource.getString("url");
         String user = resource.getString("user");
         String pass = resource.getString("password");
