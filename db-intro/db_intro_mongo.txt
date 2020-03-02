@@ -1,0 +1,38 @@
+use electronic_store;
+
+db.createCollection("gift_set")
+db.gift_set.insertOne({_id:"5e5b3eee491c5b495796e703",
+                       name:"computer gift",
+                       goods:[{category:"computer",model:"HP 450",price:1300},
+                              {category:"accessory",type:"case",model:"HP 450",price:100},
+                              {category:"mouse",price:0}]});
+
+db.gift_set.insertOne({_id:"5e5b3ef6491c5b495796e704",
+                       name:"gamer gift",
+                       goods:[{category:"gaming console",name:"PS4",price:400},
+                              {category:"accessory",type:"gamepad",quantity:2},
+                              {category:"games",type:"PS4", name:["Uncharted 4",
+                                                                  "God of War",
+                                                                  "The Lust of Us 2"]}]});
+
+db.createCollection("order")
+db.order.insertMany([{
+                          user:{user_name:"user",
+                                first_name:"Anton",
+                                last_name:"Adamovich",
+                                address:{country:"Belarus",
+                                        city:"Minsk",
+                                        street_house_appartment:"Marksa 21-3",
+                                        post_code:"2100019"}},
+                          gift_sets:[ObjectId("5e5b3eee491c5b495796e703")],
+                          order_date:"2020-02-23"
+                     },
+                     {
+                         user:{user_name:"user2",
+                                first_name:"Nikita",
+                                last_name:"Dzigurda",
+                                address:{country:"Russia",
+                                        post_code:"2400123"}},
+                         gift_sets:[ObjectId("5e5b3ef6491c5b495796e704"),ObjectId("5e5b3eee491c5b495796e703")],
+                         order_date:"2020-02-23"
+                     }]);
