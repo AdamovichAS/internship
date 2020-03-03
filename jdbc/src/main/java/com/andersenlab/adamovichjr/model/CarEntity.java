@@ -1,25 +1,25 @@
 package com.andersenlab.adamovichjr.model;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-public class Car {
+@MappedSuperclass
+public class CarEntity {
     private int id;
     private String model;
     private String color;
     boolean isDeleted;
     Timestamp createdAt;
 
-    public Car() {
-    }
-
-    public Car(String model, String color,boolean isDeleted) {
-        this.model = model;
-        this.color = color;
-        this.isDeleted = isDeleted;
+    public CarEntity() {
         this.createdAt = Timestamp.valueOf(LocalDateTime.now());
     }
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     public int getId() {
         return id;
     }
@@ -28,6 +28,7 @@ public class Car {
         this.id = id;
     }
 
+    @Column(name = "model",nullable = false)
     public String getModel() {
         return model;
     }
@@ -36,6 +37,7 @@ public class Car {
         this.model = model;
     }
 
+    @Column(name = "color", nullable = false)
     public String getColor() {
         return color;
     }
@@ -44,6 +46,7 @@ public class Car {
         this.color = color;
     }
 
+    @Column(name = "is_deleted",nullable = false)
     public boolean isDeleted() {
         return isDeleted;
     }
@@ -52,6 +55,7 @@ public class Car {
         isDeleted = deleted;
     }
 
+    @Column(name = "created_at",nullable = false)
     public Timestamp getCreatedAt() {
         return createdAt;
     }
