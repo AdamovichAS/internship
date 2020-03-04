@@ -35,7 +35,6 @@ public class QuoterImpl implements Quoter {
     }
 
     @Override
-    @PostProxy
     public void sayQuote() {
         for (int i = 0; i < repeat; i++) {
             System.out.println(message);
