@@ -1,20 +1,27 @@
 package com.andersenlab.adamovichjr.dao.impl;
 
+import com.andersenlab.adamovichjr.config.DaoConfig;
+import com.andersenlab.adamovichjr.config.HibernateConfig;
 import com.andersenlab.adamovichjr.dao.CrudDao;
 import com.andersenlab.adamovichjr.model.CarEntity;
 import com.andersenlab.adamovichjr.model.SportCarEntity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {HibernateConfig.class, DaoConfig.class})
+@Transactional()
+//@Rollback(value = false)
 public class CarDaoTest {
 
-    private CrudDao<SportCarEntity> carDao = SportCarDao.getInstance();
+    @Autowired
+    private CrudDao<SportCarEntity> carDao;
 
-    @Test
-    void getInstance() {
-        assertNotNull(carDao);
-    }
 
     @Test
     void getById() {

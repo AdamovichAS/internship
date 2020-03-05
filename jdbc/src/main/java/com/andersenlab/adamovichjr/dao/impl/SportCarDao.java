@@ -1,102 +1,47 @@
 package com.andersenlab.adamovichjr.dao.impl;
 
 import com.andersenlab.adamovichjr.dao.CrudDao;
-import com.andersenlab.adamovichjr.dao.util.HibernateUtil;
-import com.andersenlab.adamovichjr.model.CarEntity;
+
+import com.andersenlab.adamovichjr.dao.repository.SportCarRepository;
 import com.andersenlab.adamovichjr.model.SportCarEntity;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 
-import java.sql.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
+@Component
 public class SportCarDao implements CrudDao<SportCarEntity> {
 
-    private static volatile CrudDao instance;
+    private final SportCarRepository repository;
 
-    public static CrudDao getInstance() {
-        CrudDao localInstance = instance;
-        if (localInstance == null) {
-            synchronized (SportCarDao.class) {
-                localInstance = instance;
-                if (localInstance == null) {
-                    instance = localInstance = new SportCarDao();
-                }
-            }
-        }
-        return localInstance;
+    public SportCarDao(SportCarRepository repository) {
+        this.repository = repository;
     }
 
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public SportCarEntity getById(int id) {
-//        try (final Connection connection = dataSource.getConnection();
-////             final PreparedStatement statement = connection.prepareStatement
-////                     ("SELECT * FROM car WHERE car.id =? AND car.is_deleted = false;")) {
-////            statement.setInt(1, id);
-////            ResultSet resultSet = statement.executeQuery();
-////            while (resultSet.next()) {
-////                car = new CarEntity();
-////                car.setId(id);
-////                car.setModel(resultSet.getString("model"));
-////                car.setColor(resultSet.getString("color"));
-////                car.setDeleted(resultSet.getBoolean("is_deleted"));
-//////                String created_at = resultSet.getString("created_at");
-//////                car.setCreatedAt(LocalDateTime.parse(created_at));
-////                car.setCreatedAt(resultSet.getTimestamp("created_at"));
-////            }
-////        } catch (SQLException e) {
-////            throw new RuntimeException("Fail to save car in data base", e);
-////        }
-        Session session = HibernateUtil.getSession();
-        session.getTransaction().begin();
-        SportCarEntity sportCarEntity = (SportCarEntity) session.createQuery("FROM SportCarEntity s WHERE s.id=:id AND s.deleted = false ")
-                .setParameter("id", id).getSingleResult();
-        session.getTransaction().commit();
-        return sportCarEntity;
+        return repository.getByIdAndDeletedFalse(id);
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public int add(SportCarEntity car) {
-//        int primaryKey = -1;
-//        try (final Connection connection = dataSource.getConnection();
-//             final PreparedStatement statement = connection.prepareStatement
-//                     ("INSERT INTO car (model, color,is_deleted,created_at) VALUES (? , ?, ?,?)",
-//                             Statement.RETURN_GENERATED_KEYS)) {
-//            statement.setString(1, car.getModel());
-//            statement.setString(2, car.getColor());
-//            statement.setBoolean(3,car.isDeleted());
-//            statement.setTimestamp(4,car.getCreatedAt());
-//            final int rowsUpdated = statement.executeUpdate();
-//            if (rowsUpdated > 0) {
-//                try (final ResultSet resultSet = statement.getGeneratedKeys()) {
-//                    resultSet.next();
-//                    primaryKey = resultSet.getInt(1);
-//                }
-//            }
-//            return primaryKey;
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Fail to save car in data base", e);
-//        }
-        Session session = HibernateUtil.getSession();
-        session.getTransaction().begin();
-        session.save(car);
-        session.getTransaction().commit();
+        car = repository.save(car);
         return car.getId();
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean update(SportCarEntity car) {
-//        try (final Connection connection = dataSource.getConnection();
-////             final PreparedStatement statement = connection.prepareStatement
-////                     ("UPDATE car SET model = ?, color = ? WHERE id = ?")) {
-////            statement.setString(1, car.getModel());
-////            statement.setString(2, car.getColor());
-////            statement.setInt(3, car.getId());
-////            return statement.executeUpdate() > 0;
-////        } catch (SQLException e) {
-////            throw new RuntimeException("Fail to update car in data base", e);
-////        }
-        Session session = HibernateUtil.getSession();
-        session.getTransaction().begin();
+        Session session = entityManager.unwrap(Session.class);
         int updatedParameters = session.createSQLQuery("UPDATE sport_car SET model=:model, color=:color, price=:price, max_speed=:maxSpeed ")
                 .setParameter("model", car.getModel())
                 .setParameter("color", car.getColor())
@@ -107,29 +52,11 @@ public class SportCarDao implements CrudDao<SportCarEntity> {
     }
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public SportCarEntity delete(int id) {
-//        CarEntity car = getById(id);
-//        try (final Connection connection = dataSource.getConnection();
-//             final PreparedStatement statement = connection.prepareStatement
-//                     ("UPDATE car SET is_deleted = true WHERE id = ?")) {
-//            statement.setInt(1, id);
-//            statement.executeUpdate();
-//            car.setDeleted(true);
-//            return car;
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Fail to delete car from data base", e);
-//        }
-        Session session = HibernateUtil.getSession();
-        session.getTransaction().begin();
-        int updatedParameters = session.createQuery("UPDATE SportCarEntity s SET s.deleted=true WHERE s.id=:id")
-                .setParameter("id", id).executeUpdate();
-        session.getTransaction().commit();
-        if(updatedParameters > 0){
-            session.getTransaction().begin();
-            SportCarEntity sportCarEntity = session.find(SportCarEntity.class, id);
-            session.getTransaction().commit();
-            return sportCarEntity;
-        }
-        return null;
+        SportCarEntity sportCarEntity = repository.getOne(id);
+        sportCarEntity.setDeleted(true);
+        repository.flush();
+        return sportCarEntity;
     }
 }
